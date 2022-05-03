@@ -3385,10 +3385,534 @@ pub mod linked_list {
 
 pub mod stack {
 
-    pub fn stock_spanner<T: Ord>(values: &[T]) -> Vec<usize> {
-        let stack = Vec::new();
-        let result = Vec::new();
+    pub fn stock_spanner_brute_force<T: Ord>(values: &[T]) -> Vec<usize> {
+        let mut result = Vec::new();
+        for i in 0..values.len() {
+            let mut j = 1;
+            while j <= i {
+                if values[i - j] > values[i] {
+                    break;
+                }
+                j += 1;
+            }
+            result.push(j);
+        }
+        result
+    }
+
+    pub fn stock_spanner_stack<T: Copy + Ord>(values: &[T]) -> Vec<usize> {
+        let mut result = Vec::new();
+        let mut stack = Vec::new();
+
+        let top = |stack: &Vec<(usize, T)>| {
+            if !stack.is_empty() {
+                Some(stack[stack.len() - 1])
+            } else {
+                None
+            }
+        };
+
+        for (i, current_value) in values.iter().enumerate() {
+            while let Some((_, previous_value)) = top(&stack) {
+                if previous_value <= *current_value {
+                    stack.pop();
+                } else {
+                    break;
+                }
+            }
+            let span = if let Some((idx, _)) = top(&stack) {
+                i - idx
+            } else {
+                i + 1
+            };
+            result.push(span);
+            stack.push((i, *current_value));
+        }
 
         result
+    }
+
+    pub fn next_greater<T: Copy + Ord>(values: &[T]) -> Vec<Option<T>> {
+        let mut result = vec![None; values.len()];
+        let mut stack = Vec::new();
+        let top = |stack: &Vec<(usize, T)>| {
+            if stack.is_empty() {
+                None
+            } else {
+                Some(stack[stack.len() - 1])
+            }
+        };
+        for (current_idx, current_value) in values.iter().enumerate() {
+            while let Some((previous_idx, previous_value)) = top(&stack) {
+                if previous_value < *current_value {
+                    stack.pop();
+                    result[previous_idx] = Some(*current_value);
+                } else {
+                    break;
+                }
+            }
+            stack.push((current_idx, *current_value));
+        }
+        result
+    }
+
+    pub fn duplicate_parenthesis(expr: &str) -> bool {
+        let mut stack = Vec::new();
+        for c in expr.chars() {
+            if c == ')' {
+                if let Some(last_char) = stack.last() {
+                    if *last_char == '(' {
+                        return true;
+                    }
+                }
+                while let Some(last_char) = stack.pop() {
+                    if last_char == '(' {
+                        break;
+                    }
+                }
+            } else if !c.is_ascii_whitespace() {
+                stack.push(c);
+            }
+        }
+        false
+    }
+
+    pub mod histogram {
+        use std::collections::HashMap;
+
+        pub fn histogram_max_area(histogram: &[u32]) -> u64 {
+            let mut max_area = 0;
+            let mut stack = Vec::<(u32, u32)>::new();
+            let mut stack_dedup = HashMap::<u32, u32>::new();
+            for hvalue in histogram.iter().copied() {
+                let mut max_continuous_area = hvalue as u64;
+                let mut found_hvalue = false;
+                while let Some((continuous_height, continuous_run)) = stack.pop() {
+                    found_hvalue |= hvalue <= continuous_height;
+                    let (height, run) = (continuous_height.min(hvalue), continuous_run + 1);
+                    max_continuous_area = max_continuous_area.max(height as u64 * run as u64);
+                    stack_dedup
+                        .entry(height)
+                        .and_modify(|v| *v = (*v).max(run))
+                        .or_insert(run);
+                }
+                if !found_hvalue {
+                    stack.push((hvalue, 1));
+                }
+                stack_dedup.drain().for_each(|(k, v)| stack.push((k, v)));
+                max_area = max_area.max(max_continuous_area);
+            }
+            max_area
+        }
+    }
+}
+
+pub mod queue {
+    use std::collections::{HashSet, VecDeque};
+
+    pub fn earliest_nonrepeating_letter(input: &str) -> String {
+        let mut queue = VecDeque::new();
+        let mut seen_chars = HashSet::new();
+        let mut result = String::with_capacity(input.len());
+
+        for next_char in input.chars() {
+            if let Some(queued) = queue.front().copied() {
+                if queued == next_char {
+                    queue.pop_front();
+                    result.push('_');
+                } else {
+                    result.push(queued);
+                }
+            } else if seen_chars.contains(&next_char) {
+                result.push('_');
+            } else {
+                result.push(next_char);
+            }
+            if seen_chars.insert(next_char) {
+                queue.push_back(next_char);
+            } else {
+                let mut i = 0;
+                while i < queue.len() {
+                    if queue[i] == next_char {
+                        queue.remove(i);
+                    } else {
+                        i += 1;
+                    }
+                }
+            }
+        }
+
+        result
+    }
+
+    pub fn interleave(mut input: VecDeque<u32>) -> Vec<u32> {
+        let mut buffer = VecDeque::with_capacity(input.len() / 2);
+        let mut output = Vec::with_capacity(input.len());
+
+        for _ in 0..input.len() / 2 {
+            buffer.push_back(input.pop_front().unwrap());
+        }
+
+        while !input.is_empty() | !buffer.is_empty() {
+            if let Some(value) = buffer.pop_front() {
+                output.push(value);
+            }
+            if let Some(value) = input.pop_front() {
+                output.push(value);
+            }
+        }
+
+        output
+    }
+}
+
+pub mod binary_tree {
+    use std::{collections::VecDeque, ptr::null};
+
+    use itertools::Itertools;
+
+    pub struct Node<T> {
+        pub data: T,
+        pub left: *const Node<T>,
+        pub right: *const Node<T>,
+    }
+
+    pub fn level_order_build<T>(mut inputs: Vec<Option<T>>) -> Node<T> {
+        let mut queue = VecDeque::<*const Node<T>>::new();
+
+        let mut root = Node {
+            data: inputs[0].take().unwrap(),
+            left: null(),
+            right: null(),
+        };
+        let mut current = (&mut root) as *mut Node<T>;
+
+        for (left, right) in inputs.into_iter().skip(1).tuples() {
+            if let Some(value) = left {
+                let node = Box::into_raw(Box::new(Node {
+                    data: value,
+                    left: null(),
+                    right: null(),
+                }));
+                // SAFETY:
+                //   - current is either the 'root' from above or comes from the queue which contains
+                //     only pointers made from Box::into_raw corectly
+                //   - node came from Box::into_raw
+                unsafe { current.as_mut() }.unwrap().left = node;
+                queue.push_back(node);
+            }
+            if let Some(value) = right {
+                let node = Box::into_raw(Box::new(Node {
+                    data: value,
+                    left: null(),
+                    right: null(),
+                }));
+                // SAFETY:
+                //   - current is either the 'root' from above or comes from the queue which contains
+                //     only pointers made from Box::into_raw corectly
+                //   - node came from Box::into_raw
+                unsafe { current.as_mut() }.unwrap().right = node;
+                queue.push_back(node);
+            }
+            current = queue.pop_front().unwrap_or(null()) as *mut Node<T>;
+            if current.is_null() {
+                break;
+            }
+        }
+
+        root
+    }
+}
+
+pub mod hash {
+    use std::collections::HashMap;
+
+    pub fn longest_subarray_sum(inputs: &[i32], search_sum: i32) -> usize {
+        let mut sum_map = HashMap::new();
+        let mut sum = 0;
+        let mut len = 0;
+
+        for (i, input) in inputs.iter().enumerate() {
+            sum += input;
+
+            if search_sum == sum {
+                len = len.max(i + 1);
+            }
+
+            if let Some(prefix_sum_length) = sum_map.get(&(sum - search_sum)) {
+                len = len.max(i - *prefix_sum_length);
+            } else {
+                sum_map.insert(sum, i);
+            }
+        }
+
+        len
+    }
+}
+
+pub mod heap {
+    use std::collections::{BinaryHeap, HashMap};
+
+    pub fn maximum_product(inputs: &[u32]) -> u64 {
+        let mut max_heap = BinaryHeap::new();
+        for input in inputs {
+            max_heap.push(input - 1);
+        }
+        max_heap.pop().unwrap() as u64 * max_heap.pop().unwrap() as u64
+    }
+
+    pub fn closest_n(distances: &[u32], n: usize) -> Vec<u32> {
+        let mut max_heap = BinaryHeap::from_iter(distances.iter().take(n).copied());
+
+        for distance in distances.iter().skip(n) {
+            if let Some(max_of_mins) = max_heap.peek() {
+                if *max_of_mins > *distance {
+                    max_heap.push(*distance);
+                    max_heap.pop();
+                }
+            } else {
+                max_heap.push(*distance);
+                max_heap.pop();
+            }
+        }
+
+        max_heap.into_vec()
+    }
+
+    pub fn min_set_size(set: &[u32]) -> u32 {
+        let mut value_counts = HashMap::new();
+        let mut heap = BinaryHeap::new();
+
+        for s in set {
+            value_counts
+                .entry(*s)
+                .and_modify(|count| *count += 1)
+                .or_insert(1_usize);
+        }
+
+        for s in value_counts.values() {
+            heap.push(*s);
+        }
+
+        let mut result = 0;
+        let mut removed = 0;
+        while set.len() > removed * 2 {
+            removed += heap.pop().unwrap();
+            result += 1;
+        }
+
+        result
+    }
+}
+
+pub mod graph {
+    use std::{
+        cmp,
+        collections::{BinaryHeap, HashMap, HashSet, VecDeque},
+        hash::Hash,
+        mem,
+    };
+
+    #[derive(Default)]
+    pub struct Graph<T> {
+        nodes: HashMap<T, usize>,
+        edges: Vec<(T, Vec<(usize, u32)>)>,
+    }
+
+    impl<T> Graph<T>
+    where
+        T: Copy + Hash + Eq + Default,
+    {
+        pub fn new() -> Self {
+            Self::default()
+        }
+
+        pub fn add_edge(&mut self, from: T, to: T, direction: Direction, weight: u32) {
+            let from_idx = *self.nodes.entry(from).or_insert_with(|| {
+                self.edges.push((from, Vec::new()));
+                self.edges.len() - 1
+            });
+            let to_idx = *self.nodes.entry(to).or_insert_with(|| {
+                self.edges.push((to, Vec::new()));
+                self.edges.len() - 1
+            });
+            self.edges[from_idx].1.push((to_idx, weight));
+            if direction == Direction::Bidirectional {
+                self.edges[to_idx].1.push((from_idx, weight));
+            }
+        }
+
+        pub fn visit_topologically<V>(&self, mut visit: V)
+        where
+            V: FnMut(&T),
+        {
+            let mut queue = VecDeque::new();
+            let mut in_degrees = self.compute_incoming_degrees();
+
+            for (idx, _) in in_degrees
+                .iter()
+                .enumerate()
+                .filter(|(_, degree)| **degree == 0)
+            {
+                queue.push_back(idx);
+            }
+
+            while let Some(node_idx) = queue.pop_front() {
+                let (node, edges) = &self.edges[node_idx];
+                visit(node);
+                for (dependent_idx, _) in edges {
+                    in_degrees[*dependent_idx] -= 1;
+                    if in_degrees[*dependent_idx] == 0 {
+                        queue.push_back(*dependent_idx);
+                    }
+                }
+            }
+        }
+
+        pub fn dijkshtra_search(&self, src: T, dest: T) -> u64 {
+            let dest = *self.nodes.get(&dest).unwrap();
+            let distances = self.dijkshtra_search_all(src);
+            distances[dest]
+        }
+
+        pub fn fully_connected_from(&self, src: T) -> bool {
+            let degrees = self.compute_incoming_degrees();
+            if degrees.into_iter().skip(1).any(|degree| degree == 0) {
+                return false;
+            }
+            self.dijkshtra_search_all(src)
+                .into_iter()
+                .all(|reachable_in| reachable_in != u64::MAX)
+        }
+
+        pub fn all_paths(&self, src: T, dest: T) -> Vec<Vec<T>> {
+            let (src_idx, dest_idx) = (
+                *self.nodes.get(&src).unwrap(),
+                *self.nodes.get(&dest).unwrap(),
+            );
+            let mut explored = HashSet::new();
+            let mut exploring = Vec::new();
+            let mut solutions = Vec::new();
+            let mut solution = Vec::new();
+
+            exploring.push(src_idx);
+
+            while let Some(node_idx) = exploring.pop() {
+                let (node, edges_to) = &self.edges[node_idx];
+                assert!(!solution.contains(node), "cycle detected");
+                solution.push(*node);
+                if let Some((node_to_idx, _)) = edges_to
+                    .iter()
+                    .find(|(node_to_idx, _)| !explored.contains(&(node_idx, *node_to_idx)))
+                {
+                    explored.insert((node_idx, *node_to_idx));
+                    if *node_to_idx == dest_idx {
+                        solution.push(dest);
+                        solutions.push(solution.clone());
+                        exploring.push(node_idx);
+                        solution.pop();
+                        solution.pop();
+                    } else {
+                        exploring.push(node_idx);
+                        exploring.push(*node_to_idx);
+                    }
+                } else {
+                    explored.retain(|(from, _)| *from != node_idx);
+                    solution.pop();
+                    solution.pop();
+                }
+            }
+
+            solutions
+        }
+
+        pub fn find_star_center(&self) -> Option<T> {
+            let n = self.nodes.len() - 1;
+            let center_candidate = self
+                .edges
+                .iter()
+                .find(|(_, edges_out)| edges_out.len() == n)
+                .map(|(node, _)| *node);
+            if center_candidate.is_some()
+                && self.edges.iter().any(|(node, edges_out)| {
+                    *node != center_candidate.unwrap() && edges_out.len() > 1
+                })
+            {
+                None
+            } else {
+                center_candidate
+            }
+        }
+
+        fn compute_incoming_degrees(&self) -> Vec<usize> {
+            let mut in_degrees = vec![0_usize; self.nodes.len()];
+            for (_, (_, edges)) in self.edges.iter().enumerate() {
+                for (dependent, _) in edges {
+                    in_degrees[*dependent] += 1;
+                }
+            }
+            in_degrees
+        }
+
+        fn dijkshtra_search_all(&self, src: T) -> Vec<u64> {
+            let mut distances = vec![u64::MAX; self.nodes.len()];
+            let mut next_nodes = BinaryHeap::new();
+            let src = *self.nodes.get(&src).unwrap();
+            distances[src] = 0;
+            next_nodes.push(cmp::Reverse((0_u64, src)));
+            while let Some(cmp::Reverse((distance, node_idx))) = next_nodes.pop() {
+                for (nbr_idx, weight) in &self.edges[node_idx].1 {
+                    if distance + (*weight as u64) < distances[*nbr_idx] {
+                        // These next 3 lines can be replaced with a call to the "retain" method of BinaryHeap
+                        // once that method is stabilized in the std library
+                        let mut new_next_nodes = BinaryHeap::with_capacity(next_nodes.capacity());
+                        next_nodes
+                            .drain()
+                            .filter(|cmp::Reverse((_, node))| *node != *nbr_idx)
+                            .for_each(|v| new_next_nodes.push(v));
+                        mem::swap(&mut new_next_nodes, &mut next_nodes);
+                        distances[*nbr_idx] = distance + *weight as u64;
+                        next_nodes.push(cmp::Reverse((distances[*nbr_idx], *nbr_idx)));
+                    }
+                }
+            }
+            distances
+        }
+    }
+
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
+    pub enum Direction {
+        Unidirectional,
+        Bidirectional,
+    }
+}
+
+pub mod dynamic {
+    use std::collections::HashMap;
+
+    pub fn min_coins_for_change(value_requested: u32, coin_denominations: &[u32]) -> u32 {
+        fn coins_for_change(
+            value_requested: u32,
+            coin_denominations: &[u32],
+            memo: &mut HashMap<u32, u32>,
+        ) -> u32 {
+            if value_requested == 0 {
+                return 0;
+            }
+            *memo.entry(value_requested).or_insert(
+                coin_denominations
+                    .iter()
+                    .filter(|coin_value| **coin_value <= value_requested)
+                    .map(|coin_value| {
+                        min_coins_for_change(value_requested - coin_value, coin_denominations)
+                    })
+                    .min()
+                    .unwrap()
+                    + 1,
+            )
+        }
+
+        let mut memo = HashMap::new();
+        coins_for_change(value_requested, coin_denominations, &mut memo)
     }
 }

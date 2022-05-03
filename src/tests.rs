@@ -3522,3 +3522,470 @@ mod linked_list {
         assert_eq!(9, cursor.list_len());
     }
 }
+
+mod stack {
+
+    mod stock_spanner {
+        use super::super::super::stack::{stock_spanner_brute_force, stock_spanner_stack};
+
+        #[test]
+        fn it_works_with_brute_force_approach() {
+            let expected = vec![1, 1, 1, 2, 1, 4, 6];
+            let input = [100, 80, 60, 70, 60, 75, 85];
+
+            assert_eq!(expected, stock_spanner_brute_force(&input));
+        }
+
+        #[test]
+        fn it_works_with_efficient_stack_based_approach() {
+            let expected = vec![1, 1, 1, 2, 1, 4, 6];
+            let input = [100, 80, 60, 70, 60, 75, 85];
+
+            assert_eq!(expected, stock_spanner_stack(&input));
+        }
+    }
+
+    mod next_greater {
+        use super::super::super::stack::next_greater;
+
+        #[test]
+        fn it_works() {
+            let expected = vec![Some(5), Some(25), Some(25), None];
+            let input = [4, 5, 2, 25];
+            assert_eq!(expected, next_greater(&input));
+        }
+    }
+
+    mod duplicate_parenthesis {
+        use super::super::super::stack::duplicate_parenthesis;
+
+        #[test]
+        fn it_works() {
+            assert!(duplicate_parenthesis("((a+b)+((c+d)))"));
+            assert!(duplicate_parenthesis("(((a+(b)))+(c+d))"));
+            assert!(!duplicate_parenthesis("((a+b)+(c+d))"));
+            assert!(!duplicate_parenthesis("((a+(b))+(c+d))"));
+            assert!(!duplicate_parenthesis("(a+b)+(c+d)"));
+            assert!(!duplicate_parenthesis("(a+(b))+(c+d)"));
+        }
+    }
+
+    mod histogram {
+        use super::super::super::stack::histogram::histogram_max_area;
+
+        #[test]
+        fn it_works() {
+            assert_eq!(0, histogram_max_area(&[]));
+            assert_eq!(10, histogram_max_area(&[10]));
+            assert_eq!(10, histogram_max_area(&[2, 10]));
+            assert_eq!(10, histogram_max_area(&[2, 8, 2, 2, 2]));
+            assert_eq!(12, histogram_max_area(&[1, 2, 10, 2, 2, 2, 3]));
+            assert_eq!(12, histogram_max_area(&[6, 2, 5, 4, 5, 1, 6]));
+            assert_eq!(15, histogram_max_area(&[6, 2, 5, 4, 5, 1, 4, 5, 3, 6, 4]));
+            assert_eq!(
+                16,
+                histogram_max_area(&[6, 2, 5, 4, 5, 9, 2, 1, 4, 5, 3, 6, 4])
+            );
+        }
+    }
+}
+
+mod queue {
+
+    mod earliest_unique {
+        use super::super::super::queue::earliest_nonrepeating_letter;
+
+        #[test]
+        fn it_works() {
+            assert_eq!("c", earliest_nonrepeating_letter("c"));
+            assert_eq!("c_", earliest_nonrepeating_letter("cc"));
+            assert_eq!("c__", earliest_nonrepeating_letter("ccc"));
+            assert_eq!("a_bb", earliest_nonrepeating_letter("aabc"));
+            assert_eq!("a_bbbb_ddd", earliest_nonrepeating_letter("aabccdbecb"));
+        }
+    }
+
+    mod interleave {
+        use std::collections::VecDeque;
+
+        use super::super::super::queue::interleave;
+
+        #[test]
+        fn it_works() {
+            let mut input = VecDeque::new();
+            input.extend([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+
+            assert_eq!(
+                vec![11, 16, 12, 17, 13, 18, 14, 19, 15, 20],
+                interleave(input)
+            );
+        }
+    }
+}
+
+mod binary_tree {}
+
+mod hash {
+
+    mod longest_subarray_sum {
+        use super::super::super::hash::longest_subarray_sum;
+
+        #[test]
+        fn it_works() {
+            assert_eq!(
+                5,
+                longest_subarray_sum(&[0, -2, 1, 2, 3, 4, 5, 15, 10, 5], 15)
+            );
+            assert_eq!(
+                4,
+                longest_subarray_sum(&[0, -2, 1, 2, 3, 4, 5, 15, 10, 5], 1)
+            );
+            assert_eq!(
+                5,
+                longest_subarray_sum(&[0, -2, 1, 2, 3, 4, 5, 15, 10, 2, -2, 4, -2, 5], 12)
+            );
+        }
+    }
+}
+
+mod heap {
+
+    mod maximum_product {
+        use super::super::super::heap::maximum_product;
+
+        #[test]
+        fn it_works() {
+            assert_eq!(10_000, maximum_product(&[3, 4, 5, 2, 101, 10, 1, 12, 101]));
+            assert_eq!(
+                (u32::MAX as u64 - 1) * (u32::MAX as u64 - 1),
+                maximum_product(&[3, 4, 5, 2, u32::MAX, 10, 1, 12, u32::MAX])
+            );
+            assert_eq!(12, maximum_product(&[3, 4, 5, 2]));
+            assert_eq!(12, maximum_product(&[3, 1, 4, 2, 5, 2]));
+            assert_eq!(12, maximum_product(&[3, 1, 4, 2, 5, 2, 4]));
+            assert_eq!(20, maximum_product(&[3, 1, 4, 2, 5, 2, 4, 6]));
+        }
+    }
+
+    mod closest_cars {
+        use super::super::super::heap::closest_n;
+
+        #[test]
+        fn it_works() {
+            let mut result = closest_n(&[3, 7, 13, 30, 2, 8, 3, 12, 27, 22, 39], 5);
+            result.sort_unstable();
+            assert_eq!(vec![2, 3, 3, 7, 8], result);
+        }
+    }
+
+    mod min_set_size {
+        use super::super::super::heap::min_set_size;
+
+        #[test]
+        fn it_works() {
+            assert_eq!(2, min_set_size(&[3, 3, 3, 3, 5, 5, 5, 2, 2, 7]));
+        }
+    }
+}
+
+mod graph {
+
+    mod topological_sort {
+        use super::super::super::graph::{Direction::*, Graph};
+
+        #[test]
+        fn it_works() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 2, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 5, Unidirectional, 1);
+            graph.add_edge(4, 5, Unidirectional, 1);
+            graph.add_edge(1, 4, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+
+            let mut result = Vec::new();
+            graph.visit_topologically(|n| result.push(*n));
+
+            assert_eq!(vec![0, 1, 4, 2, 3, 5], result);
+        }
+    }
+
+    mod dijkshtra_search {
+        use super::super::super::graph::{Direction::*, Graph};
+
+        #[test]
+        fn it_works() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(0, 2, Unidirectional, 4);
+            graph.add_edge(0, 3, Unidirectional, 7);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 2);
+            graph.add_edge(3, 4, Unidirectional, 3);
+
+            assert_eq!(7, graph.dijkshtra_search(0, 4));
+        }
+    }
+
+    mod key_rooms {
+        use super::super::super::graph::{Direction::*, Graph};
+
+        #[test]
+        fn it_works_with_simple_linear_example() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+
+            assert!(
+                graph.fully_connected_from(0),
+                "graph should be identified as fully connected due to all rooms being reachable"
+            );
+        }
+
+        #[test]
+        fn it_works_with_example_that_has_nodes_that_are_not_keyed_anywhere() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+            graph.add_edge(5, 4, Unidirectional, 1);
+            graph.add_edge(6, 5, Unidirectional, 1);
+
+            assert!(!graph.fully_connected_from(0),"graph should be identified as not full connected due to room 6 not being reachable");
+        }
+
+        #[test]
+        fn it_works_with_a_complex_example_where_all_nodes_are_keyed_somewhere() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 3, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(2, 7, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+            graph.add_edge(3, 2, Unidirectional, 1);
+            graph.add_edge(5, 4, Unidirectional, 1);
+            graph.add_edge(5, 6, Unidirectional, 1);
+            graph.add_edge(5, 8, Unidirectional, 1);
+            graph.add_edge(6, 5, Unidirectional, 1);
+            graph.add_edge(7, 5, Unidirectional, 1);
+            graph.add_edge(8, 2, Unidirectional, 1);
+
+            assert!(
+                graph.fully_connected_from(0),
+                "graph should be identified as fully connected due to all rooms being reachable"
+            );
+        }
+
+        #[test]
+        fn it_works_with_a_simple_example_where_an_island_exists_that_is_not_reachable_from_the_main_part_of_the_graph(
+        ) {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 0, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 2, Unidirectional, 1);
+
+            assert!(
+                !graph.fully_connected_from(0),
+                "graph should be identified as NOT fully connected due to NOT all rooms being reachable due to 5,6,7,8,2 being an island unto themselves"
+            );
+        }
+
+        #[test]
+        fn it_works_with_a_complex_example_where_an_island_exists_that_is_not_reachable_from_the_main_part_of_the_graph(
+        ) {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 3, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(2, 7, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+            graph.add_edge(5, 4, Unidirectional, 1);
+            graph.add_edge(5, 6, Unidirectional, 1);
+            graph.add_edge(5, 3, Unidirectional, 1);
+            graph.add_edge(6, 5, Unidirectional, 1);
+            graph.add_edge(7, 4, Unidirectional, 1);
+            graph.add_edge(7, 8, Unidirectional, 1);
+            graph.add_edge(8, 2, Unidirectional, 1);
+            graph.add_edge(8, 5, Unidirectional, 1);
+
+            assert!(
+                !graph.fully_connected_from(0),
+                "graph should be identified as NOT fully connected due to NOT all rooms being reachable due to 5,6,7,8,2 being an island unto themselves"
+            );
+        }
+    }
+
+    mod all_paths {
+        use super::super::super::graph::{Direction::*, Graph};
+
+        #[test]
+        fn it_works_for_trivial_example_0_1_2_3_4() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+
+            assert_eq!(
+                vec![
+                    vec![0,1,2,3,4] //
+                ],
+                graph.all_paths(0, 4),
+                "there should only be the single path 0,1,2,3,4 and no other"
+            );
+        }
+
+        #[test]
+        fn it_works_for_a_2_possible_paths_example() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(1, 3, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+
+            assert_eq!(
+                vec![
+                    vec![0, 1, 2, 3, 4], //
+                    vec![0, 1, 3, 4],    //
+                ],
+                graph.all_paths(0, 4),
+                "there should be 2 solutions paths: 0,1,2,3,4 and 0,1,3,4"
+            );
+        }
+
+        #[test]
+        fn it_works_for_a_5_possible_paths_example() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(0, 5, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(1, 3, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+            graph.add_edge(3, 5, Unidirectional, 1);
+            graph.add_edge(4, 5, Unidirectional, 1);
+
+            assert_eq!(
+                vec![
+                    vec![0, 1, 2, 3, 4, 5], //
+                    vec![0, 1, 2, 3, 5],    //
+                    vec![0, 1, 3, 4, 5],    //
+                    vec![0, 1, 3, 5],       //
+                    vec![0, 5],             //
+                ],
+                graph.all_paths(0, 5),
+                "there should be 5 solutions paths"
+            );
+        }
+
+        #[test]
+        #[should_panic(expected = "cycle detected")]
+        fn it_panics_with_a_cyclic_example_as_this_requires_a_directed_acyclic_graph() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 1, Unidirectional, 1);
+            graph.add_edge(0, 5, Unidirectional, 1);
+            graph.add_edge(1, 2, Unidirectional, 1);
+            graph.add_edge(1, 3, Unidirectional, 1);
+            graph.add_edge(2, 3, Unidirectional, 1);
+            graph.add_edge(2, 0, Unidirectional, 1);
+            graph.add_edge(3, 4, Unidirectional, 1);
+            graph.add_edge(3, 5, Unidirectional, 1);
+            graph.add_edge(4, 5, Unidirectional, 1);
+
+            graph.all_paths(0, 5);
+        }
+    }
+
+    mod star {
+        use super::super::super::graph::{Direction::*, Graph};
+
+        #[test]
+        fn it_works_when_there_is_a_center() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 2, Bidirectional, 1);
+            graph.add_edge(1, 2, Bidirectional, 1);
+            graph.add_edge(2, 3, Bidirectional, 1);
+            graph.add_edge(2, 5, Bidirectional, 1);
+            graph.add_edge(2, 7, Bidirectional, 1);
+            graph.add_edge(2, 9, Bidirectional, 1);
+            graph.add_edge(2, 11, Bidirectional, 1);
+            graph.add_edge(2, 13, Bidirectional, 1);
+            graph.add_edge(2, 15, Bidirectional, 1);
+            graph.add_edge(2, 17, Bidirectional, 1);
+            graph.add_edge(4, 2, Bidirectional, 1);
+            graph.add_edge(6, 2, Bidirectional, 1);
+            graph.add_edge(8, 2, Bidirectional, 1);
+            graph.add_edge(10, 2, Bidirectional, 1);
+            graph.add_edge(12, 2, Bidirectional, 1);
+            graph.add_edge(14, 2, Bidirectional, 1);
+            graph.add_edge(16, 2, Bidirectional, 1);
+
+            assert_eq!(Some(2), graph.find_star_center());
+        }
+
+        #[test]
+        fn it_works_when_there_is_not_a_center() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 2, Bidirectional, 1);
+            graph.add_edge(1, 2, Bidirectional, 1);
+            graph.add_edge(2, 3, Bidirectional, 1);
+            graph.add_edge(2, 5, Bidirectional, 1);
+            graph.add_edge(2, 9, Bidirectional, 1);
+            graph.add_edge(2, 11, Bidirectional, 1);
+            graph.add_edge(2, 13, Bidirectional, 1);
+            graph.add_edge(2, 15, Bidirectional, 1);
+            graph.add_edge(2, 17, Bidirectional, 1);
+            graph.add_edge(4, 2, Bidirectional, 1);
+            graph.add_edge(6, 2, Bidirectional, 1);
+            graph.add_edge(7, 3, Bidirectional, 1);
+            graph.add_edge(8, 2, Bidirectional, 1);
+            graph.add_edge(10, 2, Bidirectional, 1);
+            graph.add_edge(12, 2, Bidirectional, 1);
+            graph.add_edge(14, 2, Bidirectional, 1);
+            graph.add_edge(16, 2, Bidirectional, 1);
+
+            assert_eq!(None, graph.find_star_center());
+        }
+
+        #[test]
+        fn it_works_when_there_is_a_center_but_other_noncentered_edges_exist() {
+            let mut graph = Graph::new();
+            graph.add_edge(0, 2, Bidirectional, 1);
+            graph.add_edge(1, 2, Bidirectional, 1);
+            graph.add_edge(2, 3, Bidirectional, 1);
+            graph.add_edge(2, 5, Bidirectional, 1);
+            graph.add_edge(2, 7, Bidirectional, 1);
+            graph.add_edge(2, 9, Bidirectional, 1);
+            graph.add_edge(2, 11, Bidirectional, 1);
+            graph.add_edge(2, 13, Bidirectional, 1);
+            graph.add_edge(2, 15, Bidirectional, 1);
+            graph.add_edge(2, 17, Bidirectional, 1);
+            graph.add_edge(4, 2, Bidirectional, 1);
+            graph.add_edge(6, 2, Bidirectional, 1);
+            graph.add_edge(8, 2, Bidirectional, 1);
+            graph.add_edge(10, 2, Bidirectional, 1);
+            graph.add_edge(10, 16, Bidirectional, 1);
+            graph.add_edge(12, 2, Bidirectional, 1);
+            graph.add_edge(14, 2, Bidirectional, 1);
+            graph.add_edge(16, 2, Bidirectional, 1);
+
+            assert_eq!(None, graph.find_star_center());
+        }
+    }
+}
+
+mod dynamic {
+    mod coins {
+        use super::super::super::dynamic::min_coins_for_change;
+
+        #[test]
+        fn it_works() {
+            assert_eq!(3, min_coins_for_change(15, &[1, 3, 7, 10]));
+        }
+    }
+}
