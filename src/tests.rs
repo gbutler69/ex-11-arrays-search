@@ -3985,7 +3985,12 @@ mod dynamic {
 
         #[test]
         fn it_works() {
-            assert_eq!(3, min_coins_for_change(15, &[1, 3, 7, 10]));
+            assert_eq!(Some(3), min_coins_for_change(15, &[1, 3, 7, 10]));
+            assert_eq!(Some(3), min_coins_for_change(32, &[1, 3, 7, 9, 10, 11]));
+            assert_eq!(Some(5), min_coins_for_change(15, &[3, 7, 10]));
+            assert_eq!(Some(3), min_coins_for_change(32, &[3, 7, 9, 10, 11]));
+            assert_eq!(None, min_coins_for_change(15, &[7, 10, 11, 20]));
+            assert_eq!(None, min_coins_for_change(32, &[5, 10, 14, 20]));
         }
     }
 }

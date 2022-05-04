@@ -3890,26 +3890,27 @@ pub mod graph {
 pub mod dynamic {
     use std::collections::HashMap;
 
-    pub fn min_coins_for_change(value_requested: u32, coin_denominations: &[u32]) -> u32 {
+    pub fn min_coins_for_change(value_requested: u32, coin_denominations: &[u32]) -> Option<u32> {
         fn coins_for_change(
             value_requested: u32,
             coin_denominations: &[u32],
-            memo: &mut HashMap<u32, u32>,
-        ) -> u32 {
+            memo: &mut HashMap<u32, Option<u32>>,
+        ) -> Option<u32> {
             if value_requested == 0 {
-                return 0;
+                return Some(0);
             }
-            *memo.entry(value_requested).or_insert(
+            #[allow(clippy::map_flatten)]
+            *memo.entry(value_requested).or_insert_with(|| {
                 coin_denominations
                     .iter()
                     .filter(|coin_value| **coin_value <= value_requested)
                     .map(|coin_value| {
                         min_coins_for_change(value_requested - coin_value, coin_denominations)
                     })
+                    .flatten()
                     .min()
-                    .unwrap()
-                    + 1,
-            )
+                    .map(|num_coins| num_coins + 1)
+            })
         }
 
         let mut memo = HashMap::new();
